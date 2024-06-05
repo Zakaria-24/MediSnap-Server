@@ -35,8 +35,7 @@ const verifyToken = async (req, res, next) => {
     next()
   })
 }
-const uri = "mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rfjtmur.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@main.mq0mae1.mongodb.net/?retryWrites=true&w=majority&appName=Main`
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rfjtmur.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -47,6 +46,14 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+
+    const db = client.db('MediSnap')
+    const usersCollection = db.collection('users')
+    // const usersCollection = db.collection('users')
+    // const bookingsCollection = db.collection('bookings')
+
+
+
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -76,6 +83,20 @@ async function run() {
         res.status(500).send(err)
       }
     })
+
+
+    // save a user data in db
+    app.post('/user', async (req, res) => {
+      const addUser = req.body;
+      const query = {email: addUser?.email}
+      const isExist = await usersCollection.findOne(query)
+      if (isExist) {
+        return res.send({ message: 'user already exists', insertedId: null })
+      }
+      const result = await usersCollection.insertOne(addUser);
+      res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
