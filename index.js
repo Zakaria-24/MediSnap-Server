@@ -49,7 +49,7 @@ async function run() {
 
     const db = client.db('MediSnap')
     const usersCollection = db.collection('users')
-    // const usersCollection = db.collection('users')
+    const medicinesCollection = db.collection('medicines')
     // const bookingsCollection = db.collection('bookings')
 
 
@@ -94,6 +94,13 @@ async function run() {
         return res.send({ message: 'user already exists', insertedId: null })
       }
       const result = await usersCollection.insertOne(addUser);
+      res.send(result)
+    })
+
+    // save a medicine data in db
+    app.post('/medicine', async (req, res) => {
+      const addMedicine = req.body;
+      const result = await medicinesCollection.insertOne(addMedicine);
       res.send(result)
     })
 
