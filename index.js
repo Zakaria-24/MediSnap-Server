@@ -170,14 +170,15 @@ async function run() {
         res.send(result)
       })
 
-      // // get all categories info. by specific admin email from db
-      // app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
-      //   const email = req.params.email
-      //   const query = { sellerEmail : email}
-      //   // console.log(email)
-      //   const result = await advertisementsCollection.find(query).toArray()
-      //   res.send(result)
-      // })
+      // get all categories info. by specific admin email from db
+      app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
+        const email = req.params.email
+        const query = { adminEmail : email}
+        // console.log(query)
+        const result = await categoriesCollection.find(query).toArray()
+        // console.log(result)
+        res.send(result)
+      })
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
