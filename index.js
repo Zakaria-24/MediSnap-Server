@@ -152,6 +152,25 @@ async function run() {
         res.send(result)
       })
 
+      // Admin related api
+      // get all categories info. by specific admin email from db
+      app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
+        const email = req.params.email
+        const query = { adminEmail : email}
+        // console.log(query)
+        const result = await categoriesCollection.find(query).toArray()
+        // console.log(result)
+        res.send(result)
+      })
+
+      // get all users data from db for admin management page 
+      app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+        const result = await usersCollection.find().toArray()
+        res.send(result)
+      })
+
+
+      // seller related api
       // get all medicines info. by specific seller email from db
       app.get('/medicines/:email', verifyToken, verifySeller, async (req, res) => {
         const email = req.params.email
@@ -170,15 +189,6 @@ async function run() {
         res.send(result)
       })
 
-      // get all categories info. by specific admin email from db
-      app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
-        const email = req.params.email
-        const query = { adminEmail : email}
-        // console.log(query)
-        const result = await categoriesCollection.find(query).toArray()
-        // console.log(result)
-        res.send(result)
-      })
 
 
       // delete a category from categories collection
