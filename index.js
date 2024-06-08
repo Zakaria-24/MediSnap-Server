@@ -49,6 +49,7 @@ async function run() {
 
     const db = client.db('MediSnap')
     const usersCollection = db.collection('users')
+    const categoriesCollection = db.collection('categories')
     const medicinesCollection = db.collection('medicines')
     const advertisementsCollection = db.collection('advertisements')
 
@@ -137,6 +138,13 @@ async function run() {
       res.send(result)
     })
 
+    // save a category data in db
+    app.post('/category', async (req, res) => {
+      const addCategory = req.body;
+      const result = await categoriesCollection.insertOne(addCategory);
+      res.send(result)
+    })
+
       // get a user info by email from db
       app.get('/user/:email', async (req, res) => {
         const email = req.params.email
@@ -161,6 +169,15 @@ async function run() {
         const result = await advertisementsCollection.find(query).toArray()
         res.send(result)
       })
+
+      // // get all categories info. by specific admin email from db
+      // app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
+      //   const email = req.params.email
+      //   const query = { sellerEmail : email}
+      //   // console.log(email)
+      //   const result = await advertisementsCollection.find(query).toArray()
+      //   res.send(result)
+      // })
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
