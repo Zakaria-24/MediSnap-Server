@@ -50,7 +50,7 @@ async function run() {
     const db = client.db('MediSnap')
     const usersCollection = db.collection('users')
     const medicinesCollection = db.collection('medicines')
-    // const bookingsCollection = db.collection('bookings')
+    const advertisementsCollection = db.collection('advertisements')
 
       // verify admin middleware
       const verifyAdmin = async (req, res, next) => {
@@ -127,6 +127,13 @@ async function run() {
     app.post('/medicine', async (req, res) => {
       const addMedicine = req.body;
       const result = await medicinesCollection.insertOne(addMedicine);
+      res.send(result)
+    })
+
+    // save a advertisement data in db
+    app.post('/advertisement', async (req, res) => {
+      const addAdvertisement = req.body;
+      const result = await advertisementsCollection.insertOne(addAdvertisement);
       res.send(result)
     })
 
