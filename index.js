@@ -153,6 +153,15 @@ async function run() {
         res.send(result)
       })
 
+      // get all advertisements info. by specific seller email from db
+      app.get('/advertisements/:email', verifyToken, verifySeller, async (req, res) => {
+        const email = req.params.email
+        const query = { sellerEmail : email}
+        // console.log(email)
+        const result = await advertisementsCollection.find(query).toArray()
+        res.send(result)
+      })
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(
