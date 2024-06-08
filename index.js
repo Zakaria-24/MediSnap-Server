@@ -22,7 +22,7 @@ app.use(cookieParser())
 // Verify Token Middleware
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token
-  console.log(token)
+  // console.log(token)
   if (!token) {
     return res.status(401).send({ message: 'unauthorized access' })
   }
@@ -52,6 +52,32 @@ async function run() {
     const medicinesCollection = db.collection('medicines')
     // const bookingsCollection = db.collection('bookings')
 
+      // verify admin middleware
+      const verifyAdmin = async (req, res, next) => {
+        console.log('hello')
+        const user = req.user
+        const query = { email: user?.email }
+        const result = await usersCollection.findOne(query)
+        console.log(result?.role)
+        if (!result || result?.role !== 'admin')
+          return res.status(401).send({ message: 'unauthorized access!!' })
+  
+        next()
+      }
+      // verify host middleware
+      const verifySeller = async (req, res, next) => {
+        // console.log('hello')
+        const user = req.user
+        const query = { email: user?.email }
+        const result = await usersCollection.findOne(query)
+        console.log(result?.role)
+        if (!result || result?.role !== 'seller') {
+          return res.status(401).send({ message: 'unauthorized access!!' })
+        }
+  
+        next()
+      }
+
 
 
     // auth related api
@@ -78,7 +104,7 @@ async function run() {
             sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
           })
           .send({ success: true })
-        console.log('Logout successful')
+        // console.log('Logout successful')
       } catch (err) {
         res.status(500).send(err)
       }
@@ -108,6 +134,15 @@ async function run() {
       app.get('/user/:email', async (req, res) => {
         const email = req.params.email
         const result = await usersCollection.findOne({ email })
+        res.send(result)
+      })
+
+      // get all medicines info. by specific seller email from db
+      app.get('/medicines/:email', verifyToken, verifySeller, async (req, res) => {
+        const email = req.params.email
+        const query = { addederEmail : email}
+        // console.log(email)
+        const result = await medicinesCollection.find(query).toArray()
         res.send(result)
       })
 
