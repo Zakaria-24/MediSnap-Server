@@ -189,17 +189,18 @@ async function run() {
         res.send(result)
       })
 
-
-
-      // delete a category from categories collection
-      app.delete('/category/:id', verifyToken, verifyAdmin, async (req, res) => {
-        const id = req.params.id
-        const query = { _id: new ObjectId(id) }
-        const result = await categoriesCollection.deleteOne(query)
-        // {_id: new ObjectId(req.params.id)}
+// update a user role 
+      app.patch('/user/:email', verifyToken, verifyAdmin, async (req, res) => {
+        const email = req.params.email
+        const query = { email: email }
+        const updateUser = req.body
+        const updateDoc = {
+          $set: updateUser
+        }
+        const result = await usersCollection.updateOne(query, updateDoc)
         res.send(result)
       })
-
+      
       // update a category from categories collection
       app.put('/category/:id', verifyToken, verifyAdmin, async (req, res) => {
         const id = req.params.id
@@ -211,6 +212,18 @@ async function run() {
         const result = await categoriesCollection.updateOne(query, updateDoc)
         res.send(result)
       })
+
+
+
+      // delete a category from categories collection
+      app.delete('/category/:id', verifyToken, verifyAdmin, async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const result = await categoriesCollection.deleteOne(query)
+        // {_id: new ObjectId(req.params.id)}
+        res.send(result)
+      })
+
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
