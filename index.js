@@ -184,6 +184,12 @@ async function run() {
         res.send(result)
       })
 
+      // get all advertisements data from advertisementsCollection db for admin management page
+      app.get('/manageAdvertisements', verifyToken, verifyAdmin, async (req, res) => {
+        const result = await advertisementsCollection.find().toArray()
+        res.send(result)
+      })
+
 
       // seller related api
       // get all medicines info. by specific seller email from db
@@ -213,6 +219,18 @@ async function run() {
           $set: updateUser
         }
         const result = await usersCollection.updateOne(query, updateDoc)
+        res.send(result)
+      })
+
+// update a advertisement status 
+      app.patch('/advertisement/:id', verifyToken, verifyAdmin, async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const updateStatus = req.body
+        const updateDoc = {
+          $set: updateStatus
+        }
+        const result = await advertisementsCollection.updateOne(query, updateDoc)
         res.send(result)
       })
       
