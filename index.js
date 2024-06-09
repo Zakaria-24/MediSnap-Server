@@ -145,6 +145,12 @@ async function run() {
       res.send(result)
     })
 
+    // get all medicines data
+    app.get('/medicines', async (req, res) => {
+      const result = await medicinesCollection.find().toArray()
+      res.send(result)
+    })
+
       // get a user info by email from db
       app.get('/user/:email', async (req, res) => {
         const email = req.params.email
