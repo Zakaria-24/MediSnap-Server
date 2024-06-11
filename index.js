@@ -350,6 +350,15 @@ async function run() {
         // {_id: new ObjectId(req.params.id)}
         res.send(result)
       })
+   
+      // delete a selected category from user by specific id in addToCartCollection
+      app.delete('/cart/:id', verifyToken, verifyUser, async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const result = await addToCartsCollection.deleteOne(query)
+        // {_id: new ObjectId(req.params.id)}
+        res.send(result)
+      })
 
 
     // Send a ping to confirm a successful connection
