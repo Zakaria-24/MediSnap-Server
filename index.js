@@ -52,6 +52,7 @@ async function run() {
     const categoriesCollection = db.collection('categories')
     const medicinesCollection = db.collection('medicines')
     const advertisementsCollection = db.collection('advertisements')
+    const addToCartsCollection = db.collection('addToCarts')
 
       // verify admin middleware
       const verifyAdmin = async (req, res, next) => {
@@ -65,6 +66,7 @@ async function run() {
   
         next()
       }
+
       // verify host middleware
       const verifySeller = async (req, res, next) => {
         // console.log('hello')
@@ -73,6 +75,20 @@ async function run() {
         const result = await usersCollection.findOne(query)
         console.log(result?.role)
         if (!result || result?.role !== 'seller') {
+          return res.status(401).send({ message: 'unauthorized access!!' })
+        }
+  
+        next()
+      }
+  
+      // verify host middleware
+      const verifyUser = async (req, res, next) => {
+        // console.log('hello')
+        const user = req.user
+        const query = { email: user?.email }
+        const result = await usersCollection.findOne(query)
+        console.log(result?.role)
+        if (!result || result?.role !== 'user') {
           return res.status(401).send({ message: 'unauthorized access!!' })
         }
   
@@ -145,6 +161,13 @@ async function run() {
       res.send(result)
     })
 
+    // // save a selected cart in addToCartsCollection
+    app.post('/selectedCart', async (req, res) => {
+      const addSelectedCart = req.body;
+      const result = await addToCartsCollection.insertOne(addSelectedCart);
+      res.send(result)
+    })
+
     // get all medicines data
     app.get('/medicines', async (req, res) => {
       const result = await medicinesCollection.find().toArray()
@@ -168,6 +191,7 @@ async function run() {
       })
 
       // Admin related api
+
       // get all categories info. by specific admin email from db
       app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
         const email = req.params.email
@@ -192,6 +216,7 @@ async function run() {
 
 
       // seller related api
+
       // get all medicines info. by specific seller email from db
       app.get('/medicines/:email', verifyToken, verifySeller, async (req, res) => {
         const email = req.params.email
@@ -209,6 +234,63 @@ async function run() {
         const result = await advertisementsCollection.find(query).toArray()
         res.send(result)
       })
+
+
+      // Home{ category section api}
+
+// get all catgory data from categoriesCollection
+   app.get('/categories', async (req, res) => {
+    const result = await categoriesCollection.find().toArray()
+    res.send(result)
+  })
+
+// get all catgory data related to specified categoryName
+   app.get('/specificCategories/:categoryName',  async (req, res) => {
+    const categoryName = req.params.categoryName
+    const filter = { categoryName: categoryName }
+    const result = await categoriesCollection.find(filter).toArray()
+    res.send(result)
+  })
+
+    // get all advertising data from advertisingCollection db for slider
+    app.get('/sliderAdvertisement', async (req, res) => {
+      const result = await advertisementsCollection.find().toArray()
+      res.send(result)
+    })
+
+
+    // get all medicins data from medicinesCollection db for discount
+    app.get('/discount', async (req, res) => {
+      const query = { discountPercentage: {$ne: "0"} }
+      const result = await medicinesCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // get categorydata for categoryDetails page
+    app.get('/ctgDetails/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id)}
+      const result = await categoriesCollection.findOne(query)
+      res.send(result)
+    })
+
+
+    // get selected specific deta for categoryDetails page
+    app.get('/categoryDetails/:categoryName', async (req, res) => {
+      const categoryName = req.params.categoryName
+      const query = { categoryName: categoryName}
+      const result = await categoriesCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    // get all selected carts by specific user email
+    app.get('/selectedCarts/:email', verifyToken, verifyUser, async (req, res) => {
+      const email = req.params.email
+      const query = { selecterEmail: email }
+      const result = await addToCartsCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
 // update a user role 
       app.patch('/user/:email', verifyToken, verifyAdmin, async (req, res) => {
@@ -231,6 +313,18 @@ async function run() {
           $set: updateStatus
         }
         const result = await advertisementsCollection.updateOne(query, updateDoc)
+        res.send(result)
+      })
+      
+// update a massUnit quantity  
+      app.patch('/massUnit/:id', verifyToken, verifyUser, async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const updateStatus = req.body
+        const updateDoc = {
+          $set: updateStatus
+        }
+        const result = await addToCartsCollection.updateOne(query, updateDoc)
         res.send(result)
       })
       
