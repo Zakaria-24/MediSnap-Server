@@ -5,6 +5,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb')
 const jwt = require('jsonwebtoken')
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 
 const port = process.env.PORT || 8000
 
@@ -53,6 +54,7 @@ async function run() {
     const medicinesCollection = db.collection('medicines')
     const advertisementsCollection = db.collection('advertisements')
     const addToCartsCollection = db.collection('addToCarts')
+    const paymentsCollection = db.collection('payments')
 
       // verify admin middleware
       const verifyAdmin = async (req, res, next) => {
@@ -95,8 +97,6 @@ async function run() {
         next()
       }
 
-
-
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body
@@ -126,6 +126,36 @@ async function run() {
         res.status(500).send(err)
       }
     })
+
+
+
+
+    // for payment methods
+        // create-payment-intent
+        app.post('/create-payment-intent', verifyToken, async (req, res) => {
+          const price = req.body.price
+          const priceInCent = parseInt(price) * 100
+          if (!price || priceInCent < 1) return
+          // generate clientSecret
+          const { client_secret } = await stripe.paymentIntents.create({
+            amount: priceInCent,
+            currency: 'usd',
+            // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
+            automatic_payment_methods: {
+              enabled: true,
+            },
+          })
+          // send client secret as response
+          res.send({ clientSecret: client_secret })
+        })
+
+        // save a payment data in paymentCollection
+        app.post('/payment', verifyToken, verifyUser, async (req, res) => {
+          const payment = req.body;
+          const result = await paymentsCollection.insertOne(payment);
+          res.send(result)
+        })
+
 
 
     // save a user data in db
@@ -275,7 +305,7 @@ async function run() {
     })
 
 
-    // get selected specific deta for categoryDetails page
+    // get selected Related deta for categoryDetails page
     app.get('/categoryDetails/:categoryName', async (req, res) => {
       const categoryName = req.params.categoryName
       const query = { categoryName: categoryName}
