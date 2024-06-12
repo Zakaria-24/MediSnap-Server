@@ -222,6 +222,18 @@ async function run() {
 
       // Admin related api
 
+      // get all payment 
+      app.get('/adminPaidRevenue', verifyToken, verifyAdmin, async (req, res) => {
+        const query = { status: "paid"}
+        const result = await paymentsCollection.find(query).toArray()
+        res.send(result)
+      })
+      app.get('/adminPendingRevenue', verifyToken, verifyAdmin, async (req, res) => {
+        const query = { status: "pending"}
+        const result = await paymentsCollection.find(query).toArray()
+        res.send(result)
+      })
+
       // get all categories info. by specific admin email from db
       app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
         const email = req.params.email
@@ -380,7 +392,7 @@ async function run() {
       })
 
 // update a payment history status from admin page
-      app.patch('/payment/:id', verifyToken, verifyAdmin, async (req, res) => {
+      app.patch('/paymentStatus/:id', verifyToken, verifyAdmin, async (req, res) => {
         const id = req.params.id
         const query = { _id: new ObjectId(id) }
         const updateStatus = req.body
