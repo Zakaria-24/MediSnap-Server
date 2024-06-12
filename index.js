@@ -259,6 +259,13 @@ async function run() {
         res.send(result)
       })
 
+      // get all payment data with filtering status: "paid" from payments collection
+      app.get('/seles', verifyToken, verifyAdmin, async (req, res) => {
+        const query = { status: "paid"}
+        const result = await paymentsCollection.find(query).toArray()
+        res.send(result)
+      })
+
 
       // seller related api
 
@@ -431,6 +438,22 @@ async function run() {
         const result = await paymentsCollection.updateOne(query, updateDoc)
         res.send(result)
       })
+
+
+      
+    //   // update Room Status
+    // app.patch('/payment/status/:transactionId', async (req, res) => {
+    //   const transactionId = req.params.transactionId
+    //   const status = req.body
+    //   // change room availability status
+    //   const query = { transactionId: transactionId }
+    //   const updateDoc = {
+    //     $set: status,
+    //   }
+    //   const result = await roomsCollection.updateOne(query, updateDoc)
+    //   res.send(result)
+    // })
+
 
       
       // update a category from categories collection
