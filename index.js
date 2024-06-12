@@ -321,8 +321,16 @@ async function run() {
       res.send(result)
     })
 
-    // get all payment history by specific user email
-    app.get('/paymentHistory/:email', verifyToken, verifyUser, async (req, res) => {
+  
+
+    // get all payments history for seller
+    app.get('/sellerPaymentHistory', verifyToken, verifySeller, async (req, res) => {
+      const result = await paymentsCollection.find().toArray()
+      res.send(result)
+    })
+
+    // get all payments history by specific user email
+    app.get('/userPaymentHistory/:email', verifyToken, verifyUser, async (req, res) => {
       const email = req.params.email
       const query = { email: email }
       const result = await paymentsCollection.find(query).toArray()
