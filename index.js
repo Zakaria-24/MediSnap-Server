@@ -321,6 +321,15 @@ async function run() {
       res.send(result)
     })
 
+    // get all payment history by specific user email
+    app.get('/paymentHistory/:email', verifyToken, verifyUser, async (req, res) => {
+      const email = req.params.email
+      const query = { email: email }
+      const result = await paymentsCollection.find(query).toArray()
+      res.send(result)
+    })
+
+
 
 // update a user role 
       app.patch('/user/:email', verifyToken, verifyAdmin, async (req, res) => {
