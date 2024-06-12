@@ -234,6 +234,9 @@ async function run() {
         res.send(result)
       })
 
+
+
+
       // get all categories info. by specific admin email from db
       app.get('/categories/:email', verifyToken, verifyAdmin, async (req, res) => {
         const email = req.params.email
@@ -258,6 +261,32 @@ async function run() {
 
 
       // seller related api
+
+       // get all payment 
+       app.get('/sellerPaidRevenue/:email', verifyToken, verifySeller, async (req, res) => {
+        const email = req.params.email
+        // const filter = { sellerEmail: email}
+        // const query = {
+        //   "filter?.status": "paid"}
+        const query = { 
+          sellerEmail: email,
+          status: "paid"}
+          // console.log(query)
+        const result = await paymentsCollection.find(query).toArray()
+        res.send(result)
+        // console.log(result)
+      })
+      app.get('/sellerPendingRevenue/:email', verifyToken, verifySeller, async (req, res) => {
+        const email = req.params.email
+        const query = { 
+          sellerEmail: email,
+          status: "pending"}
+          // console.log(query)
+        const result = await paymentsCollection.find(query).toArray()
+        res.send(result)
+      })
+
+
 
       // get all medicines info. by specific seller email from db
       app.get('/medicines/:email', verifyToken, verifySeller, async (req, res) => {
