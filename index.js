@@ -321,7 +321,11 @@ async function run() {
       res.send(result)
     })
 
-  
+    // get all payments history for admin
+    app.get('/adminPaymentHistory', verifyToken, verifyAdmin, async (req, res) => {
+      const result = await paymentsCollection.find().toArray()
+      res.send(result)
+    })
 
     // get all payments history for seller
     app.get('/sellerPaymentHistory', verifyToken, verifySeller, async (req, res) => {
@@ -374,6 +378,19 @@ async function run() {
         const result = await addToCartsCollection.updateOne(query, updateDoc)
         res.send(result)
       })
+
+// update a payment history status from admin page
+      app.patch('/payment/:id', verifyToken, verifyAdmin, async (req, res) => {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+        const updateStatus = req.body
+        const updateDoc = {
+          $set: updateStatus
+        }
+        const result = await paymentsCollection.updateOne(query, updateDoc)
+        res.send(result)
+      })
+
       
       // update a category from categories collection
       app.put('/category/:id', verifyToken, verifyAdmin, async (req, res) => {
