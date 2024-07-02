@@ -454,6 +454,17 @@ async function run() {
     })
 
 
+    // get a invoice for a specific SellerEmail from paymentsCollection 
+    app.get('/invoice/:email', verifyToken, verifyUser, async (req, res) => {
+      const email = req.params.email
+      const query = { 
+        buyerEmail: email,
+        status: "paid"
+       }
+      const result = await paymentsCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
 // update a user role 
       app.patch('/user/:email', verifyToken, verifyAdmin, async (req, res) => {
