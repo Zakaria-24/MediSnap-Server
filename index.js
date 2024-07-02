@@ -459,7 +459,7 @@ async function run() {
       const email = req.params.email
       const query = { 
         buyerEmail: email,
-        status: "paid"
+        // status: "paid"
        }
       const result = await paymentsCollection.find(query).toArray()
       res.send(result)
